@@ -41,12 +41,20 @@ public class MostrarImagen extends Activity implements View.OnClickListener {
                 return gestureDetector.onTouchEvent(event);
             }
         };
-        Bundle b=getIntent().getExtras();
-        id=b.getInt("id");
-        imageView=(ImageView)findViewById(R.id.imageView);
-        Picasso.with(this).load(new File(b.get("ruta").toString())).into(imageView);
+
+        imageView = (ImageView) findViewById(R.id.imageView);
         imageView.setOnClickListener(MostrarImagen.this);
         imageView.setOnTouchListener(gestureListener);
+        if(savedInstanceState!=null){
+            id=savedInstanceState.getInt("id");
+            Uri uri = Uri.withAppendedPath(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, Integer.toString(id));
+            Picasso.with(MostrarImagen.this).load(uri).into(imageView);
+        }else {
+            Bundle b = getIntent().getExtras();
+            id = b.getInt("id");
+            Picasso.with(this).load(new File(b.get("ruta").toString())).into(imageView);
+
+        }
 
     }
 
@@ -58,6 +66,12 @@ public class MostrarImagen extends Activity implements View.OnClickListener {
         //FilterFullscreenActivity.show(this, input, f);
     }
 
+    @Override
+    protected void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+        outState.putInt("id",id);
+    }
+
     class MyGestureDetector extends GestureDetector.SimpleOnGestureListener {
         @Override
         public boolean onFling(MotionEvent e1, MotionEvent e2, float velocityX, float velocityY) {
@@ -67,17 +81,19 @@ public class MostrarImagen extends Activity implements View.OnClickListener {
                     return false;
                 // right to left swipe
                 if(e1.getX() - e2.getX() > SWIPE_MIN_DISTANCE && Math.abs(velocityX) > SWIPE_THRESHOLD_VELOCITY) {
-                    id++;
+
                     filasCursor=getContentResolver().query(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, parameters,null,null,null,null).getCount();
                     if(id<=filasCursor) {
+                        id++;
                         Uri uri = Uri.withAppendedPath(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, Integer.toString(id));
                         Picasso.with(MostrarImagen.this).load(uri).into(imageView);
                     }else {
                         Toast.makeText(MostrarImagen.this,"Ultima foto",Toast.LENGTH_SHORT).show();
                     }
                 }  else if (e2.getX() - e1.getX() > SWIPE_MIN_DISTANCE && Math.abs(velocityX) > SWIPE_THRESHOLD_VELOCITY) {
-                    id--;
-                    if(id<=0) {
+
+                    if(id>=1373) {
+                        id--;
                         Uri uri = Uri.withAppendedPath(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, Integer.toString(id));
                         Picasso.with(MostrarImagen.this).load(uri).into(imageView);
                     }else {

@@ -29,7 +29,6 @@ public class MainActivity extends Activity {
         ad=new Adaptador(this,cursorfotos);
         gv.setAdapter(ad);
 
-
         gv.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
